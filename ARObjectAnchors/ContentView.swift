@@ -5,39 +5,40 @@
 //  Created by Zaid Neurothrone on 2022-10-16.
 //
 
-import SwiftUI
 import RealityKit
+import SwiftUI
 
 struct ContentView : View {
-    var body: some View {
-        ARViewContainer().edgesIgnoringSafeArea(.all)
-    }
+  var body: some View {
+    ARViewContainer().edgesIgnoringSafeArea(.all)
+  }
 }
 
+// NOTE: When object is detected: construct a green sphere around the object
+
 struct ARViewContainer: UIViewRepresentable {
+  func makeUIView(context: Context) -> ARView {
+    let arView = ARView(frame: .zero)
     
-    func makeUIView(context: Context) -> ARView {
-        
-        let arView = ARView(frame: .zero)
-        
-        // Load the "Box" scene from the "Experience" Reality File
-        let boxAnchor = try! Experience.loadBox()
-        
-        // Add the box anchor to the scene
-        arView.scene.anchors.append(boxAnchor)
-        
-        return arView
-        
-    }
+    let objectAnchor = try! Experience.loadObjectScene()
+    let sphere = ModelEntity(
+      mesh: .generateSphere(radius: 0.2),
+      materials: [SimpleMaterial(color: .green.withAlphaComponent(0.3), roughness: .float(.zero), isMetallic: true)]
+    )
+    objectAnchor.addChild(sphere)
     
-    func updateUIView(_ uiView: ARView, context: Context) {}
+    arView.scene.addAnchor(objectAnchor)
     
+    return arView
+  }
+  
+  func updateUIView(_ uiView: ARView, context: Context) {}
 }
 
 #if DEBUG
 struct ContentView_Previews : PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
+  static var previews: some View {
+    ContentView()
+  }
 }
 #endif
